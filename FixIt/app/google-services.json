@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "144169386003",
+    "firebase_url": "https://municipality-fc539-default-rtdb.firebaseio.com",
+    "project_id": "municipality-fc539",
+    "storage_bucket": "municipality-fc539.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144169386003:android:6f4053173d6b794ab87fe6",
+        "android_client_info": {
+          "package_name": "com.example.fixit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144169386003-5kfsgp9u0elbb90clche63q7pude15cj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlhqxe0dSdDUKhlNi42omf9W52czRetoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144169386003-5kfsgp9u0elbb90clche63q7pude15cj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:144169386003:android:b9b2a1a23cff4a2ab87fe6",
+        "android_client_info": {
+          "package_name": "com.example.municipality"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "144169386003-5kfsgp9u0elbb90clche63q7pude15cj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlhqxe0dSdDUKhlNi42omf9W52czRetoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "144169386003-5kfsgp9u0elbb90clche63q7pude15cj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
