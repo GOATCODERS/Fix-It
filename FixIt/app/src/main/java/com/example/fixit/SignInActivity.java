@@ -1,6 +1,8 @@
 package com.example.fixit;
 
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +24,21 @@ public class SignInActivity extends AppCompatActivity
 
     FirebaseDatabase database;
     DatabaseReference reference;
+
+    ConnectionThread checkConnection = new ConnectionThread();
+
+    @Override
+    protected void onStart() {
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(checkConnection, filter);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterReceiver(checkConnection);
+        super.onStop();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

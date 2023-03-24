@@ -11,4 +11,5 @@
     <color name="peach">#FFCB77</color>
     <color name="smoke_green">#F3FCF2</color>
     <color name="dark_green">#3E4A3C</color>
+    <color name="dark_green_opacity">#9D3E4A3C</color>
 </resources>

@@ -1,7 +1,9 @@
 package com.example.fixit;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,11 +24,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.regex.Pattern;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity
+{
     private EditText name, email, username, password, confirmPassword;
     private TextView upper, lower, digit, charCounter, validatePassword;
+
     FirebaseDatabase database;
     DatabaseReference reference;
+
+    ConnectionThread checkConnection = new ConnectionThread();
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -86,6 +92,19 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(checkConnection, filter);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterReceiver(checkConnection);
+        super.onStop();
     }
 
     public void createUser(View view){

@@ -1,13 +1,14 @@
 package com.example.fixit;
 
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.os.Bundle;
-import android.view.View;
-
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.Bundle;
+
+public class PreviewActivity extends AppCompatActivity {
     ConnectionThread checkConnection = new ConnectionThread();
 
     @Override
@@ -25,10 +26,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_preview);
 
-    }
 
-    public void startScanning(View view) {
     }
 }

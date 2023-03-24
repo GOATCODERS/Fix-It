@@ -3,18 +3,24 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/MaFia/Documents/Fix-It/FixIt/app/src/main/res/drawable/button_shape.xml" value="0.2465" />
+        <entry key="..\:/Users/MaFia/Documents/Fix-It/FixIt/app/src/main/res/layout/activity_preview.xml" value="0.25" />
+        <entry key="..\:/Users/MaFia/Documents/Fix-It/FixIt/app/src/main/res/layout/check_inernet_dialog.xml" value="1.4214285714285715" />
+        <entry key="..\:/Users/MaFia/Documents/Fix-It/FixIt/app/src/main/res/layout/check_internet_dialog.xml" value="0.7378640776699029" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/background_final.xml" value="0.2505" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/bottom_line.xml" value="0.178" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/button_back.xml" value="0.2505" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/clickable_peach_button.xml" value="0.215" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/green_border.xml" value="0.2505" />
+        <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/ic_camera.xml" value="0.2505" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/ic_contacts.xml" value="0.2505" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/image_background.xml" value="0.1975" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/peach_border.xml" value="0.2505" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/peach_border_fill_lime.xml" value="0.2505" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/drawable/smole_green_background.xml" value="0.225" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/layout/activity_profile.xml" value="0.33" />
+        <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/layout/activity_preview.xml" value="0.240625" />
+        <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/layout/activity_profile.xml" value="0.28278041074249605" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/layout/activity_sign_in.xml" value="0.25" />
         <entry key="..\:/Users/MaFia/Documents/FixIt/app/src/main/res/layout/activity_sign_up.xml" value="0.33" />
       </map>

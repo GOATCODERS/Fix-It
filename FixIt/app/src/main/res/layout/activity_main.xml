@@ -6,18 +6,36 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:gravity="center"
-    android:background="@drawable/background_final">
+    android:background="@drawable/background_final"
+    android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
         android:text="Welcome to Fix It"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="50dp"
+        android:background="@drawable/button_back"
+        android:textAlignment="center"
+        android:gravity="center"
         android:textColor="@color/dark_green"
-        android:textSize="28dp"
+        android:textSize="38sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click here to start Scanning"
+        android:textSize="20sp"
+        android:textColor="@color/peach"
+        android:textStyle="bold"
+        android:onClick="startScanning"/>
+
 
 </LinearLayout>
