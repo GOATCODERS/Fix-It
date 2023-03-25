@@ -63,10 +63,9 @@ public class SignInActivity extends AppCompatActivity
 
     }
 
-    private void OpenMainActivity()
+    private void openMainActivity()
     {
-        ProfileActivity pa = new ProfileActivity();
-        Intent intent = new Intent(this, ProfileActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         String strUsername = username.getText().toString().trim();
 
         intent.putExtra("username", strUsername);
@@ -129,7 +128,7 @@ public class SignInActivity extends AppCompatActivity
                     if(dbPassword.equals(strPassword))
                     {
                         password.setError(null);
-                        OpenMainActivity();
+                        openMainActivity();
                     }else {
                         password.setError("Invalid password");
                         password.requestFocus();
