@@ -24,8 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.regex.Pattern;
 
-public class SignUpActivity extends AppCompatActivity
-{
+public class SignUpActivity extends AppCompatActivity {
     private EditText name, email, username, password, confirmPassword;
     private TextView upper, lower, digit, charCounter, validatePassword;
 
@@ -35,7 +34,7 @@ public class SignUpActivity extends AppCompatActivity
     ConnectionThread checkConnection = new ConnectionThread();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
@@ -58,22 +57,21 @@ public class SignUpActivity extends AppCompatActivity
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count)
-            {
-                String strPassword = password.getText().toString();
-                validatePassword(strPassword);
-
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validatePassword();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                validatePassword();
 
             }
         });
 
         confirmPassword.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -84,12 +82,6 @@ public class SignUpActivity extends AppCompatActivity
 
             @Override
             public void afterTextChanged(Editable s) {
-                String strPassword = confirmPassword.getText().toString();
-
-                if(strPassword.isEmpty())
-                {
-                    validatePassword.setVisibility(View.GONE);
-                }
             }
         });
     }
@@ -107,13 +99,14 @@ public class SignUpActivity extends AppCompatActivity
         super.onStop();
     }
 
-    public void createUser(View view){
-        if(!validateUser()| !validatePassword()|!validateEmail()|!validateName()|!validateConfirmPassword())
-        {
+    public void createUser(View view) {
+
+        if (!validateUser() | !validatePassword() | !validateEmail() | !validateName() | !validateConfirmPassword()) {
 
 
-        }else{
-            if(!checkUser()) {
+        } else {
+
+            if (!checkUser()) {
                 String name = this.name.getText().toString();
                 String email = this.email.getText().toString();
                 String username = this.username.getText().toString();
@@ -129,131 +122,152 @@ public class SignUpActivity extends AppCompatActivity
 
                 Toast.makeText(this, "New Account created", Toast.LENGTH_LONG).show();
                 openSignIn(view);
-            }else{
+            } else {
                 Toast.makeText(this, "Failed to create an Account", Toast.LENGTH_LONG).show();
                 username.requestFocus();
             }
+
+
         }
 
     }
 
-    public void openSignIn(View view){
+    public void openSignIn(View view) {
         Intent intent = new Intent(this, SignInActivity.class);
         startActivity(intent);
     }
 
-    private void validatePassword(String password){
+    private boolean validatePassword() {
+        String strPassword = this.password.getText().toString();
+
+        if (strPassword.isEmpty()) {
+            this.password.setError("Password cannot be empty");
+            return false;
+        } else {
+            this.password.setError(null);
+        }
         Pattern upper = Pattern.compile("[A-Z]");
         Pattern lower = Pattern.compile("[a-z]");
         Pattern digit = Pattern.compile("[0-9]");
 
-        if(!upper.matcher(password).find())
-        {
+        if (!upper.matcher(strPassword).find()) {
             this.upper.setTextColor(Color.RED);
-        }else{
+        } else {
             this.upper.setTextColor(Color.GREEN);
         }
 
-        if(!lower.matcher(password).find())
-        {
+        if (!lower.matcher(strPassword).find()) {
             this.lower.setTextColor(Color.RED);
-        }else{
+        } else {
             this.lower.setTextColor(Color.GREEN);
         }
 
-        if(!digit.matcher(password).find())
-        {
+        if (!digit.matcher(strPassword).find()) {
             this.digit.setTextColor(Color.RED);
-        }else{
+        } else {
             this.digit.setTextColor(Color.GREEN);
         }
 
-        if(password.length() < 8)
-        {
+        if (password.length() < 8) {
             this.charCounter.setTextColor(Color.RED);
-        }else{
+        } else {
             this.charCounter.setTextColor(Color.GREEN);
         }
+        boolean isStrong = !(password.length() < 8) && digit.matcher(strPassword).find() && lower.matcher(strPassword).find()
+                && upper.matcher(strPassword).find();
+        if (!isStrong) {
+            System.out.println("passed 'if' in validatePassword in SignUpActivity");
+            this.password.setError("Password not strong");
+            this.password.requestFocus();
+
+        } else {
+            System.out.println("passed 'else' in validatePassword in SignUpActivity");
+            this.password.setError(null);
+        }
+
+        return isStrong;
+
     }
 
-    private void confirmPassword(String password){
+    private void confirmPassword(String password) {
         String temp = this.password.getText().toString();
 
-        if(!temp.equals(password))
-        {
+        if (!temp.equals(password)) {
             validatePassword.setTextColor(Color.RED);
-        }else{
+            validatePassword.setText(R.string.password_does_not_match);
+        } else {
             validatePassword.setTextColor(Color.GREEN);
+            validatePassword.setText(R.string.password_match);
         }
     }
 
-    private boolean validateUser(){
+    private boolean validateUser() {
         String strUsername = username.getText().toString();
+        Pattern lower = Pattern.compile("^[a-z]*$");
 
-        if(strUsername.isEmpty())
-        {
-            username.setError("Username cannot be empty");
+        if (strUsername.isEmpty()) {
+            username.setError(getString(R.string.mame_cannot_be_empty));
+            username.requestFocus();
             return false;
-        }else{
+        } else if (!lower.matcher(strUsername).find()) {
+            username.setError("Username must be in lowercase," +
+                    " cannot contain a number(0-9) or any special char(@*!)");
+            username.requestFocus();
+            return false;
+        } else {
             username.setError(null);
             return true;
         }
     }
 
-    private boolean validatePassword(){
-        String strPassword = password.getText().toString();
 
-        if(strPassword.isEmpty())
-        {
-            password.setError("Password cannot be empty");
-            return false;
-        }else{
-            password.setError(null);
-            return true;
-        }
-    }
-
-    private boolean validateConfirmPassword(){
+    private boolean validateConfirmPassword() {
         String strPassword = confirmPassword.getText().toString();
 
-        if(strPassword.isEmpty())
-        {
-            confirmPassword.setError("Email cannot be empty");
+        if (strPassword.isEmpty()) {
+            confirmPassword.setError("This cannot be empty");
+            confirmPassword.requestFocus();
             return false;
-        }else{
+        } else {
             confirmPassword.setError(null);
+            confirmPassword.requestFocus();
             return true;
         }
     }
 
-    private boolean validateName(){
+    private boolean validateName() {
         String strUsername = name.getText().toString();
+        Pattern upper = Pattern.compile("^[a-zA-Z]*$");
+//        Pattern lower = Pattern.compile("[a-z]");
 
-        if(strUsername.isEmpty())
-        {
-            name.setError("Name cannot be empty");
+        if (strUsername.isEmpty()) {
+            name.setError(getString(R.string.mame_cannot_be_empty));
+            name.requestFocus();
             return false;
-        }else{
+        } else if (!upper.matcher(strUsername).find()) {
+            name.setError("Name cannot contain a number(0-9) or any special char(@*!)");
+            name.requestFocus();
+            return false;
+        } else {
             name.setError(null);
             return true;
         }
     }
 
-    private boolean validateEmail(){
+    private boolean validateEmail() {
         String strPassword = email.getText().toString();
 
-        if(strPassword.isEmpty())
-        {
+        if (strPassword.isEmpty()) {
             email.setError("Email cannot be empty");
+            email.requestFocus();
             return false;
-        }else{
+        } else {
             email.setError(null);
             return true;
         }
     }
 
-    private boolean checkUser()
-    {
+    private boolean checkUser() {
         final boolean[] available = {false};
         String strUsername = username.getText().toString();
 
@@ -263,14 +277,13 @@ public class SignUpActivity extends AppCompatActivity
 
         checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot)
-            {
-                if(snapshot.exists()){
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
                     username.setError("Username already registered");
                     username.requestFocus();
                     available[0] = true;
                     System.err.println("Passed here");
-                }else{
+                } else {
                     username.setError(null);
                     available[0] = false;
                     System.err.println("Passed here else");

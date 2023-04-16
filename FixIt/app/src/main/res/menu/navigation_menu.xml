@@ -2,23 +2,34 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/scan"
-        android:title="Scan"
+        android:title="@string/scan"
         android:icon="@drawable/ic_camera">
     </item>
 
     <item android:id="@+id/profile"
-        android:title="My Profile"
+        android:title="@string/my_profile"
         android:icon="@drawable/ic_username">
     </item>
 
-    <item android:id="@+id/edit_profile"
-        android:title="Edit Profile"
-        android:icon="@drawable/ic_baseline_edit_24">
+    <item android:id="@+id/notifications"
+        android:title="@string/notifications"
+        android:icon="@drawable/ic_baseline_notifications_24">
+    </item>
+
+    <item android:id="@+id/tasks"
+        android:title="@string/tasks"
+        android:icon="@drawable/ic_tasks">
+    </item>
+
+    <item android:id="@+id/complete_tasks"
+        android:title="@string/complete_tasks"
+        android:icon="@drawable/ic_complete_tasks">
     </item>
 
     <item android:id="@+id/sign_out"
-        android:title="Sign Out"
+        android:title="@string/sign_out"
         android:icon="@drawable/ic_sign_out">
     </item>
+
 
 </menu>

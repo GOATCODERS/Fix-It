@@ -16,35 +16,12 @@
         android:background="@drawable/background_final"
         android:orientation="vertical">
 
-        <TextView
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragmentContainerView"
+            android:name="com.example.fixit.MainFragment"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:text="Welcome to Fix It"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/button_back"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:textColor="@color/dark_green"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Click here to start Scanning"
-            android:textSize="20sp"
-            android:textColor="@color/peach"
-            android:textStyle="bold"
-            android:onClick="startScanning"/>
-
-
+            android:layout_height="match_parent" />
     </LinearLayout>
     <com.google.android.material.navigation.NavigationView
         android:layout_width="wrap_content"

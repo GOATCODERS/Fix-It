@@ -1,8 +1,11 @@
 package com.example.fixit;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,11 +13,15 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+{
+    FragmentManager manager = getSupportFragmentManager();
     ConnectionThread checkConnection = new ConnectionThread();
     private DrawerLayout drawer;
     private ActionBarDrawerToggle drawerToggle;
@@ -32,10 +39,13 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(checkConnection);
         super.onStop();
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getPermission();
 
         Bundle extra = getIntent().getExtras();
 
@@ -58,7 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
                 if(id == R.id.profile)
                 {
-                    openMainActivity();
+                    openProfileFragment();
+                }else if(id == R.id.scan)
+                {
+                    openMainFragment();
+                }else if(id == R.id.notifications)
+                {
+                    openNotificationsFragment();
                 }
 
                 return true;
@@ -67,17 +83,72 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-    private void openMainActivity() {
-        ProfileActivity pa = new ProfileActivity();
-        Intent intent = new Intent(this, ProfileActivity.class);
+    private void openProfileFragment()
+    {
         String strUsername = mUsername;
+        Bundle bundle = new Bundle();
+        bundle.putString("username", strUsername);
+        manager.beginTransaction()
+                .replace(R.id.fragmentContainerView, ProfileFragment.class, bundle)
+                .setReorderingAllowed(true)
+                .addToBackStack("name")
+                .commit();
 
-        intent.putExtra("username", strUsername);
+    }
 
-        startActivity(intent);
+    private void openNotificationsFragment()
+    {
+        String strUsername = mUsername;
+        Bundle bundle = new Bundle();
+        bundle.putString("username", strUsername);
+        manager.beginTransaction()
+                .replace(R.id.fragmentContainerView, NotificationsFragment.class, bundle)
+                .setReorderingAllowed(true)
+                .addToBackStack("name")
+                .commit();
 
+    }
 
+    private void openMainFragment() {
+//        ProfileActivity pa = new ProfileActivity();
+//        Intent intent = new Intent(this, ProfileActivity.class);
+//        String strUsername = mUsername;
+//
+//        intent.putExtra("username", strUsername);
+//
+//        startActivity(intent);
+
+        manager.beginTransaction()
+                .replace(R.id.fragmentContainerView, MainFragment.class, null)
+                .setReorderingAllowed(true)
+                .addToBackStack("name")
+                .commit();
+    }
+
+    void getPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 11);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        if(requestCode==11)
+        {
+            if(grantResults.length>0)
+            {
+                if(grantResults[0]!=PackageManager.PERMISSION_GRANTED)
+                {
+                    this.getPermission();
+                }
+            }
+        }
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override

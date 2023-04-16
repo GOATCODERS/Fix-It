@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainFragment">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:text="Welcome to Fix It"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="30dp"
+            android:background="@drawable/button_back"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:textColor="@color/dark_green"
+            android:textSize="28sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/main_scan"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="Click here to start Scanning"
+            android:textSize="20sp"
+            android:textColor="@color/peach"
+            android:textStyle="bold"
+            android:onClick="startScanning"
+            android:gravity="center"/>
+
+
+    </LinearLayout>
+</FrameLayout>

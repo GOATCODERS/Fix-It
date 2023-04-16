@@ -67,6 +67,7 @@
                         android:drawablePadding="8dp"
                         android:hint="Password"
                         android:padding="8dp"
+                        android:inputType="textPassword"
                         android:textColor="@color/dark_green" />
 
 
@@ -82,8 +83,9 @@
 
                     <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="48dp"
                         android:layout_marginTop="20dp"
+                        android:gravity="center"
                         android:onClick="openSignUp"
                         android:text="Don't have an account? Sign Up"
                         android:textAlignment="center"
