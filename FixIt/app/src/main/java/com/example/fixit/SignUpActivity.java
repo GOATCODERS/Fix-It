@@ -9,12 +9,18 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,14 +28,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
 public class SignUpActivity extends AppCompatActivity {
     private EditText name, email, username, password, confirmPassword;
-    private TextView upper, lower, digit, charCounter, validatePassword;
+    TextView upper, lower, digit, charCounter, validatePassword;
+    ProgressBar progressBar;
 
     FirebaseDatabase database;
     DatabaseReference reference;
+    FirebaseAuth auth;
+    private FirebaseUser user;
 
     ConnectionThread checkConnection = new ConnectionThread();
 
@@ -37,12 +47,15 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+        database = FirebaseDatabase.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         name = (EditText) findViewById(R.id.signup_name);
         email = (EditText) findViewById(R.id.signup_email);
         username = (EditText) findViewById(R.id.signup_username);
         password = (EditText) findViewById(R.id.signup_password);
         confirmPassword = (EditText) findViewById(R.id.signup_confirm_password);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         upper = (TextView) findViewById(R.id.signup_upper);
         lower = (TextView) findViewById(R.id.signup_lower);
@@ -91,6 +104,11 @@ public class SignUpActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(checkConnection, filter);
         super.onStart();
+
+        if(user != null)
+        {
+            openMainActivity();
+        }
     }
 
     @Override
@@ -100,41 +118,49 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     public void createUser(View view) {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
 
-        if (!validateUser() | !validatePassword() | !validateEmail() | !validateName() | !validateConfirmPassword()) {
+            if (!validateUser() | !validatePassword() | !validateEmail() | !validateName() | !validateConfirmPassword())
+            {
 
-
-        } else {
-
-            if (!checkUser()) {
-                String name = this.name.getText().toString();
-                String email = this.email.getText().toString();
-                String username = this.username.getText().toString();
-                String password = this.password.getText().toString();
-                String confirmPassword = this.confirmPassword.getText().toString();
-
-                User user = new User(name, email, username, password);
-
-                database = FirebaseDatabase.getInstance();
-                reference = database.getReference("Users");
-
-                reference.child(username).setValue(user);
-
-                Toast.makeText(this, "New Account created", Toast.LENGTH_LONG).show();
-                openSignIn(view);
             } else {
-                Toast.makeText(this, "Failed to create an Account", Toast.LENGTH_LONG).show();
-                username.requestFocus();
+
+                if (!checkUser()) {
+
+                    String email = this.email.getText().toString();
+                    String password = this.password.getText().toString();
+
+                    auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            progressBar.setVisibility(ProgressBar.INVISIBLE);
+                            if (task.isSuccessful()) {
+                                Toast.makeText(SignUpActivity.this, "Account created", Toast.LENGTH_LONG).show();
+                                addToDatabase(view);
+                            } else {
+                                Toast.makeText(SignUpActivity.this, "Failed to create an Account", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+
+                } else {
+                    progressBar.setVisibility(ProgressBar.INVISIBLE);
+                    Toast.makeText(this, "Failed to create an Account", Toast.LENGTH_LONG).show();
+                    username.requestFocus();
+                }
             }
-
-
-        }
-
     }
 
     public void openSignIn(View view) {
         Intent intent = new Intent(this, SignInActivity.class);
         startActivity(intent);
+        finish();
+    }
+
+    private void openMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private boolean validatePassword() {
@@ -203,7 +229,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean validateUser() {
         String strUsername = username.getText().toString();
-        Pattern lower = Pattern.compile("^[a-z]*$");
+        Pattern lower = Pattern.compile("^[a-z0-9/s]*$");
 
         if (strUsername.isEmpty()) {
             username.setError(getString(R.string.mame_cannot_be_empty));
@@ -211,7 +237,7 @@ public class SignUpActivity extends AppCompatActivity {
             return false;
         } else if (!lower.matcher(strUsername).find()) {
             username.setError("Username must be in lowercase," +
-                    " cannot contain a number(0-9) or any special char(@*!)");
+                    " cannot contain space or any special char(@*!)");
             username.requestFocus();
             return false;
         } else {
@@ -219,7 +245,6 @@ public class SignUpActivity extends AppCompatActivity {
             return true;
         }
     }
-
 
     private boolean validateConfirmPassword() {
         String strPassword = confirmPassword.getText().toString();
@@ -237,14 +262,16 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean validateName() {
         String strUsername = name.getText().toString();
-        Pattern upper = Pattern.compile("^[a-zA-Z]*$");
+        Pattern pattern = Pattern.compile("^[a-zA-Z ]*$");
 //        Pattern lower = Pattern.compile("[a-z]");
+
+        MatchResult result =  pattern.matcher(strUsername);
 
         if (strUsername.isEmpty()) {
             name.setError(getString(R.string.mame_cannot_be_empty));
             name.requestFocus();
             return false;
-        } else if (!upper.matcher(strUsername).find()) {
+        } else if (!pattern.matcher(strUsername).find() ) {
             name.setError("Name cannot contain a number(0-9) or any special char(@*!)");
             name.requestFocus();
             return false;
@@ -271,7 +298,6 @@ public class SignUpActivity extends AppCompatActivity {
         final boolean[] available = {false};
         String strUsername = username.getText().toString();
 
-        database = FirebaseDatabase.getInstance();
         reference = database.getReference("Users");
         Query checkDatabase = reference.orderByChild("username").equalTo(strUsername);
 
@@ -300,5 +326,65 @@ public class SignUpActivity extends AppCompatActivity {
         return available[0];
     }
 
+    public void addToDatabase(View view) {
+        String name = this.name.getText().toString();
+        String email = this.email.getText().toString();
+        String password = this.password.getText().toString();
+
+        User user = new User(name, email, password);
+
+        reference = database.getReference("Users");
+        reference.child(email).setValue(user);
+
+        openSignIn(view);
+    }
+
+    public EditText getName() {
+        return name;
+    }
+
+    public void setName(EditText name) {
+        this.name = name;
+    }
+
+    public EditText getEmail() {
+        return email;
+    }
+
+    public void setEmail(EditText email) {
+        this.email = email;
+    }
+
+    public EditText getUsername() {
+        return username;
+    }
+
+    public void setUsername(EditText username) {
+        this.username = username;
+    }
+
+    public EditText getPassword() {
+        return password;
+    }
+
+    public void setPassword(EditText password) {
+        this.password = password;
+    }
+
+    public EditText getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(EditText confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+    public FirebaseUser getUser() {
+        return user;
+    }
+
+    public void setUser(FirebaseUser user) {
+        this.user = user;
+    }
 }
 

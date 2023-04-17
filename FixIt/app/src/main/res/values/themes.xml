@@ -2,9 +2,12 @@
     <!-- Base application theme. -->
     <style name="Theme.FixIt" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryDark">@color/purple_700</item>
-        <item name="colorAccent">@color/teal_200</item>
+        <item name="colorPrimary">@color/smoke_green</item>
+        <item name="colorPrimaryDark">@color/lime_green</item>
+        <item name="colorAccent">@color/peach</item>
         <!-- Customize your theme here. -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
+
 </resources>

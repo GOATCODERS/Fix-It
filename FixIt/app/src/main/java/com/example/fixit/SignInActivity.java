@@ -7,11 +7,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -19,12 +25,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-public class SignInActivity extends AppCompatActivity
-{
-    private EditText username, password;
+public class SignInActivity extends AppCompatActivity {
+    private EditText email, password;
+    ProgressBar progressBar;
 
     FirebaseDatabase database;
     DatabaseReference reference;
+
+    FirebaseAuth auth;
+    private FirebaseUser user;
+
+    String strUsername;
 
     ConnectionThread checkConnection = new ConnectionThread();
 
@@ -33,6 +44,11 @@ public class SignInActivity extends AppCompatActivity
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(checkConnection, filter);
         super.onStart();
+
+        if(user != null)
+        {
+            openMainActivity();
+        }
     }
 
     @Override
@@ -46,34 +62,35 @@ public class SignInActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        username = (EditText) findViewById(R.id.sign_in_username);
+        email = (EditText) findViewById(R.id.sign_in_email);
         password = (EditText) findViewById(R.id.sign_in_password);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
 
     }
 
-    public void signIn(View view)
-    {
+    public void signIn(View view) {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+        try {
 
-        if(!validateUser() | !validatePassword())
-        {
+            if (!validateUser() | !validatePassword()) {
 
-        }else{
-            checkUser();
+            } else {
+                checkUser();
+            }
+
+        } finally {
+            progressBar.setVisibility(ProgressBar.INVISIBLE);
         }
-
-
     }
 
-    private void openMainActivity()
-    {
+    private void openMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
-        String strUsername = username.getText().toString().trim();
-
         intent.putExtra("username", strUsername);
-
         startActivity(intent);
-
-
+        finish();
     }
 
     public void openSignUp(View view) {
@@ -81,71 +98,80 @@ public class SignInActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    private boolean validateUser()
-    {
-        String strUsername = username.getText().toString();
+    private boolean validateUser() {
+        String strEmail = email.getText().toString();
 
-        if(strUsername.isEmpty())
-        {
-            username.setError("Username cannot be empty");
+        if (strEmail.isEmpty()) {
+            email.setError("Username cannot be empty");
             return false;
-        }else{
-            username.setError(null);
+        } else {
+            email.setError(null);
             return true;
         }
     }
 
-    private boolean validatePassword()
-    {
+    private boolean validatePassword() {
         String strPassword = password.getText().toString();
 
-        if(strPassword.isEmpty())
-        {
+        if (strPassword.isEmpty()) {
             password.setError("Username cannot be empty");
             return false;
-        }else{
+        } else {
             password.setError(null);
             return true;
         }
     }
 
-    private void checkUser()
-    {
-        String strUsername = username.getText().toString();
+    private void checkUser() {
+        progressBar.setVisibility(ProgressBar.VISIBLE);
+        String strEmail = email.getText().toString();
         String strPassword = password.getText().toString();
 
-        database = FirebaseDatabase.getInstance();
-        reference = database.getReference("Users");
-        Query checkDatabase = reference.orderByChild("username").equalTo(strUsername);
-
-        checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        auth.signInWithEmailAndPassword(strEmail, strPassword).addOnCompleteListener(this,new OnCompleteListener<AuthResult>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot)
-            {
-                if(snapshot.exists()){
-                    username.setError(null);
-                    String dbPassword = snapshot.child(strUsername).child("password").getValue(String.class);
-
-                    if(dbPassword.equals(strPassword))
-                    {
-                        password.setError(null);
-                        openMainActivity();
-                    }else {
-                        password.setError("Invalid password");
-                        password.requestFocus();
-                    }
-                }else{
-                    username.setError("Username does not exist");
-                    username.requestFocus();
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                progressBar.setVisibility(ProgressBar.INVISIBLE);
+                if (task.isSuccessful()) {
+                    Toast.makeText(SignInActivity.this, "Logged in successfully", Toast.LENGTH_LONG).show();
+                    openMainActivity();
+                } else {
+                    Toast.makeText(SignInActivity.this, "Failed to login", Toast.LENGTH_LONG).show();
                 }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("profile fragment is complete "+error.getMessage());
             }
         });
+
+//        database = FirebaseDatabase.getInstance();
+//        reference = database.getReference("Users");
+//        Query checkDatabase = reference.orderByChild("email").equalTo(strEmail);
+//
+//
+//        checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()) {
+//                    username.setError(null);
+//                    String dbPassword = snapshot.child(strUsername).child("password").getValue(String.class);
+//
+//                    if (dbPassword.equals(strPassword)) {
+//                        password.setError(null);
+//                        openMainActivity();
+//                    } else {
+//                        password.setError("Invalid password");
+//                        password.requestFocus();
+//                    }
+//
+//                } else {
+//                    username.setError("Username does not exist");
+//                    username.requestFocus();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                System.out.println("profile fragment is complete " + error.getMessage());
+//            }
+//        });
 
     }
 

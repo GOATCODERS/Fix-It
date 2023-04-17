@@ -47,15 +47,17 @@
 
 
                     <EditText
-                        android:id="@+id/sign_in_username"
+                        android:id="@+id/sign_in_email"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:backgroundTint="@color/lime_green"
                         android:drawableLeft="@drawable/ic_baseline_email_24"
                         android:drawablePadding="8dp"
-                        android:hint="Username"
+                        android:hint="@string/email"
                         android:padding="8dp"
-                        android:textColor="@color/dark_green" />
+                        android:textColor="@color/dark_green"
+                        android:inputType="textEmailAddress"
+                        android:importantForAutofill="no" />
 
                     <EditText
                         android:id="@+id/sign_in_password"
@@ -65,19 +67,26 @@
                         android:backgroundTint="@color/lime_green"
                         android:drawableLeft="@drawable/ic_baseline_person_24"
                         android:drawablePadding="8dp"
-                        android:hint="Password"
+                        android:hint="@string/password"
                         android:padding="8dp"
                         android:inputType="textPassword"
-                        android:textColor="@color/dark_green" />
+                        android:textColor="@color/dark_green"
+                        android:importantForAutofill="no" />
 
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:visibility="invisible"
+                        android:layout_width="wrap_content"
+                        android:layout_height="30dp"
+                        android:layout_margin="5dp"
+                        android:layout_gravity="center"/>
 
                     <Button
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
-                        android:layout_marginTop="30dp"
                         android:background="@drawable/smole_green_background"
                         android:onClick="signIn"
-                        android:text="Sign In"
+                        android:text="@string/sign_in"
                         android:textColor="@color/dark_green"
                         android:textSize="18dp" />
 
@@ -87,7 +96,7 @@
                         android:layout_marginTop="20dp"
                         android:gravity="center"
                         android:onClick="openSignUp"
-                        android:text="Don't have an account? Sign Up"
+                        android:text="@string/do_not_have_an_account_sign_up"
                         android:textAlignment="center"
                         android:textColor="@color/peach"
                         android:textSize="16sp" />

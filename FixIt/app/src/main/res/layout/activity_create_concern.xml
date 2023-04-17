@@ -7,48 +7,52 @@
     tools:context=".CreateConcernActivity"
     >
 
+   <include layout="@layout/toolbar"/>
+
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:background="@color/smoke_green"
-        android:padding="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         tools:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
+                android:layout_margin="10dp"
                 android:gravity="center"
-                android:layout_margin="10dp">
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="create a new concern"
-                    android:textColor="@color/dark_green"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
+                <!--                <TextView-->
+                <!--                    android:id="@+id/textView"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:layout_weight="1"-->
+                <!--                    android:gravity="center"-->
+                <!--                    android:text="create a new concern"-->
+                <!--                    android:textColor="@color/dark_green"-->
+                <!--                    android:textSize="28sp"-->
+                <!--                    android:textStyle="bold" />-->
 
                 <ImageView
                     android:id="@+id/image_view"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
+                    android:layout_marginTop="10dp"
                     android:layout_weight="0"
                     android:backgroundTint="@color/peach"
-                    app:srcCompat="@drawable/ic_camera"
-                    android:layout_marginTop="30dp"/>
+                    app:srcCompat="@drawable/ic_camera" />
 
             </LinearLayout>
 
@@ -74,10 +78,12 @@
                     android:layout_weight="1"
                     android:background="@drawable/bottom_line"
                     android:ems="10"
-                    android:hint="@string/city_of_tshwane_account_number_hint"
+                    android:hint="@string/tshwane_account_number_hint"
+                    android:importantForAutofill="no"
                     android:inputType="number"
                     android:textSize="16sp"
-                    android:importantForAutofill="no" />
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"/>
 
             </LinearLayout>
 
@@ -102,21 +108,22 @@
                     android:layout_height="40dp"
                     android:layout_weight="1"
                     android:background="@drawable/bottom_line"
-                    android:hint="@string/date_type"
                     android:drawablePadding="8dp"
+                    android:hint="@string/date_type"
+                    android:importantForAutofill="no"
+                    android:inputType="datetime"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:textSize="16sp"
-                    android:importantForAutofill="no"
-                    android:inputType="datetime" />
+                    android:textSize="16sp" />
+
                 <ImageButton
                     android:id="@+id/fix_date_picker"
                     android:layout_width="50dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/ic_calendar_today"
-                    android:background="@drawable/image_button_background"
                     android:layout_weight="0"
-                    android:onClick="openDatePicker"/>
+                    android:background="@drawable/image_button_background"
+                    android:onClick="openDatePicker"
+                    android:src="@drawable/ic_calendar_today" />
 
             </LinearLayout>
 
@@ -133,7 +140,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
                     android:layout_weight="0"
-                    android:text="Alt Contact :"
+                    android:text="@string/alt_contact"
                     android:textColor="@color/dark_green" />
 
                 <EditText
@@ -143,7 +150,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/bottom_line"
                     android:ems="10"
-                    android:hint="Alternative Contact"
+                    android:hint="@string/alternative_contact"
                     android:inputType="number"
                     android:textSize="16sp" />
 
@@ -162,11 +169,12 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
                     android:layout_weight="0"
-                    android:text="Type:"
+                    android:text="@string/type"
                     android:textColor="@color/dark_green" />
 
 
                 <RadioGroup
+                    android:id="@+id/selection_type"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
@@ -174,19 +182,19 @@
                     android:orientation="horizontal">
 
                     <RadioButton
-                        android:id="@+id/radioButton"
+                        android:id="@+id/rb_above_ground"
                         android:layout_width="wrap_content"
                         android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:text="Above ground" />
+                        android:text="@string/above_ground" />
 
                     <RadioButton
-                        android:id="@+id/radioButton3"
+                        android:id="@+id/rb_underground"
                         android:layout_width="wrap_content"
                         android:layout_height="50dp"
                         android:layout_marginStart="5dp"
                         android:layout_weight="1"
-                        android:text="Underground" />
+                        android:text="@string/underground" />
                 </RadioGroup>
 
             </LinearLayout>
@@ -229,8 +237,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@color/lime_green"
-                    android:text="submit"
-                    android:onClick="onClickSubmit"/>
+                    android:onClick="onClickSubmit"
+                    android:text="@string/submit" />
 
                 <Button
                     android:id="@+id/button2"
@@ -238,8 +246,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="#BEFE8700"
-                    android:text="Cancel"
-                    android:onClick="onClickCancel"/>
+                    android:onClick="onClickCancel"
+                    android:text="@string/cancel" />
             </LinearLayout>
 
         </LinearLayout>

@@ -2,17 +2,28 @@ package com.example.fixit;
 
 public class User
 {
-    private String name, email, username, password;
+    private String name;
+    private String email;
+    private String password;
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    private String contact;
     private Address address;
 
     public User() {
     }
 
-    public User(String name, String email, String username, String password)
+    public User(String name, String email, String password)
     {
         this.name = name;
         this.email = email;
-        this.username = username;
         this.password = password;
         this.address = null;
 
@@ -40,14 +51,6 @@ public class User
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {

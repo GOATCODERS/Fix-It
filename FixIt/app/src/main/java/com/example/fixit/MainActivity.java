@@ -13,11 +13,14 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -26,12 +29,15 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     private ActionBarDrawerToggle drawerToggle;
     private String mUsername;
+    FirebaseAuth auth;
+    FirebaseUser user;
 
     @Override
     protected void onStart() {
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(checkConnection, filter);
         super.onStart();
+
     }
 
     @Override
@@ -45,6 +51,16 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        auth = FirebaseAuth.getInstance();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        user = auth.getCurrentUser();
+
+        if(user == null) {
+            openSignInActivity();
+        }
+
         getPermission();
 
         Bundle extra = getIntent().getExtras();
@@ -55,6 +71,8 @@ public class MainActivity extends AppCompatActivity
         drawer = (DrawerLayout) findViewById(R.id.drawer);
         drawerToggle = new ActionBarDrawerToggle(this, drawer, R.string.open, R.string.close);
         drawerToggle.setDrawerIndicatorEnabled(true);
+
+
 
         drawer.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -75,6 +93,12 @@ public class MainActivity extends AppCompatActivity
                 }else if(id == R.id.notifications)
                 {
                     openNotificationsFragment();
+                }else if(id == R.id.sign_out)
+                {
+                    auth.signOut();
+                    FirebaseAuth.getInstance().signOut();
+                    openSignInActivity();
+
                 }
 
                 return true;
@@ -83,6 +107,13 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+
+    private void openSignInActivity() {
+        Intent intent = new Intent(this, SignInActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void openProfileFragment()
     {
         String strUsername = mUsername;

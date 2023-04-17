@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,10 +34,12 @@ public class ProfileFragment extends Fragment {
     private TextView password;
     private TextView address;
     private TextView contact;
-    String mUsername;
+    String mEmail;
 
     FirebaseDatabase database;
     DatabaseReference reference;
+    FirebaseAuth auth;
+    private FirebaseUser user;
 
 //     ConnectionThread checkConnection = new ConnectionThread();
 
@@ -106,8 +110,9 @@ public class ProfileFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mUsername = getArguments().getString(ARG_PARAM1);
-//            mParam2 = getArguments().getString(ARG_PARAM2);
+//            mUsername = getArguments().getString(ARG_PARAM1);
+//
+////            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
     }
@@ -125,6 +130,10 @@ public class ProfileFragment extends Fragment {
         address = (TextView) fragmentProfile.findViewById(R.id.profile_address_redirect);
         contact = (TextView) fragmentProfile.findViewById(R.id.profile_contact);
 
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+        mEmail = user.getEmail();
+
         init();
 
 
@@ -133,33 +142,51 @@ public class ProfileFragment extends Fragment {
 
      public void init()
      {
-         System.out.println("current user username = "+ mUsername);
+
+         System.out.println("current user mEmail = "+ mEmail);
          database = FirebaseDatabase.getInstance();
          reference = database.getReference("Users");
 
-         Query checkDatabase = reference.orderByChild("username").equalTo(mUsername);
+         Query checkDatabase = reference.orderByChild("email").equalTo(mEmail);
 
          checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
              @Override
-             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                 String strName, strEmail, strPassword, strContact, strAddress;
-                 strName = snapshot.child(mUsername).child("name").getValue(String.class);
-                 strEmail = snapshot.child(mUsername).child("email").getValue(String.class);
-                 strContact = snapshot.child(mUsername).child("contact").getValue(String.class);
-                 strAddress = snapshot.child(mUsername).child("address").getValue(String.class);
+             public void onDataChange(@NonNull DataSnapshot snapshot)
+             {
+                 if(snapshot.exists())
+                 {
+                     String mUsername = snapshot.child("username").getValue(String.class);
 
-                 System.out.println("profile fragment is strName "+strName);
-                 setName(strName);
-                 email.setText(strEmail);
-                 System.out.println("profile fragment is email "+email.getText().toString());
-                 username.setText("@" + mUsername);
+                     System.out.println("current user mUsername = "+ mUsername);
 
-                 if (strContact != null) {
-                     contact.setText(strContact);
+                     String strName, strEmail, strPassword, strContact, strAddress;
+                     strName = snapshot.child(mUsername).child("name").getValue(String.class);
+                     strEmail = snapshot.child(mUsername).child("email").getValue(String.class);
+                     strContact = snapshot.child(mUsername).child("contact").getValue(String.class);
+                     strAddress = snapshot.child(mUsername).child("address").getValue(String.class);
+
+                     System.out.println("profile fragment is strName "+strName);
+                     setName(strName);
+                     email.setText(strEmail);
+                     System.out.println("profile fragment is email "+email.getText().toString());
+                     username.setText("@" + mUsername);
+
+                     if (strContact != null) {
+                         contact.setText(strContact);
+                     }
+                     if (strAddress != null) {
+                         address.setText(strAddress);
+                     }
+                 }else {
+                     System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++" +
+                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
+                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
+                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++                         onDataChange failed" +
+                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
+                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
+                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++");
                  }
-                 if (strAddress != null) {
-                     address.setText(strAddress);
-                 }
+
 
              }
 
