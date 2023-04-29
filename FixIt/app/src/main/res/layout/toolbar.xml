@@ -6,4 +6,6 @@ android:layout_width="match_parent"
 android:layout_height="?attr/actionBarSize"
 android:background="@color/smoke_green">
 
+
+
 </androidx.appcompat.widget.Toolbar>

@@ -42,6 +42,9 @@
     <string name="sign_in">Sign In</string>
     <string name="password">Password</string>
     <string name="do_not_have_an_account_sign_up">Don\'t have an account? Sign Up</string>
+    <string name="useremail">User: userEmail@fixit.gov</string>
+    <string name="user">User :</string>
+    <string name="user_email_hint">userEmail@fixit.gov</string>
     <string-array name="arr_location">
         <item>Public</item>
         <item>Yard</item>

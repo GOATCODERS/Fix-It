@@ -2,27 +2,51 @@ package com.example.fixit;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
 
+import android.app.DatePickerDialog;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-public class ProfileActivity extends AppCompatActivity
+import java.io.File;
+import java.io.IOException;
+
+public class ProfileActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener
 {
-    private TextView name, email, username, password, address, contact;
-    String mUsername;
+    private TextView email, dob;
+    private EditText name, contact;
+    private ImageButton datePicker;
+    private ProgressBar progressBar;
 
     FirebaseDatabase database;
     DatabaseReference reference;
+    FirebaseAuth auth;
+    private FirebaseUser user;
 
     ConnectionThread checkConnection = new ConnectionThread();
 
@@ -44,59 +68,92 @@ public class ProfileActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        name = (TextView) findViewById(R.id.profile_name);
-        email = (TextView) findViewById(R.id.profile_email);
-        username = (TextView) findViewById(R.id.profile_username);
-        password = (TextView) findViewById(R.id.profile_password_redirect);
-        address = (TextView) findViewById(R.id.profile_address_redirect);
-        contact = (TextView) findViewById(R.id.profile_contact);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Edit Profile Details");
+        setSupportActionBar(toolbar);
 
-        Bundle extra = getIntent().getExtras();
+        name = (EditText) findViewById(R.id.edit_profile_name);
+        email = (TextView) findViewById(R.id.edit_profile_email);
+        dob = (TextView) findViewById(R.id.profile_dob);
+        contact = (EditText) findViewById(R.id.edit_profile_contact);
+        datePicker = (ImageButton) findViewById(R.id.dob_date_picker);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
-        if(!extra.isEmpty())
-            mUsername = extra.getString("username");
+        datePicker.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view)
+            {
+                openDatePicker();
+            }
+        });
 
         init();
 
     }
 
-    public void init()
-    {
-        System.out.println("current user username = "+ mUsername);
+    public void init() {
+        progressBar.setVisibility(View.VISIBLE);
         database = FirebaseDatabase.getInstance();
         reference = database.getReference("Users");
 
-        Query checkDatabase = reference.orderByChild("username").equalTo(mUsername);
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+
+        String uid = user.getUid();
+
+        System.out.println("current user mUsername = " + uid);
+
+        DatabaseReference checkDatabase = reference.child(uid);
 
         checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String strName, strEmail, strPassword,strContact, strAddress;
-                strName = snapshot.child(mUsername).child("name").getValue(String.class);
-                strEmail = snapshot.child(mUsername).child("email").getValue(String.class);
-                strContact = snapshot.child(mUsername).child("contact").getValue(String.class);
-                strAddress = snapshot.child(mUsername).child("address").getValue(String.class);
+                String strName, strEmail, strContact, strAge;
+                User userData = snapshot.getValue(User.class);
 
-                name.setText(strName);
-                email.setText(strEmail);
-                username.setText("@"+mUsername);
+                if (userData != null) {
+                    strContact = userData.getContact();
+                    strName = userData.getName();
+                    strEmail = userData.getEmail();
+                    strAge = userData.getDateOfBirth();
 
-                if(strContact != null)
-                {
-                    contact.setText(strContact);
+                    name.setText(strName);
+                    email.setText(strEmail);
+
+
+                    if (strContact != null) {
+                        contact.setText(strContact);
+                    }
+                    if (strAge != null) {
+                        dob.setText(strAge);
+                    }
+
+                } else {
+                    Toast.makeText(ProfileActivity.this, "User data not available at the moment", Toast.LENGTH_LONG).show();
+
                 }
-                if(strAddress != null)
-                {
-                    address.setText(strAddress);
-                }
+                progressBar.setVisibility(View.GONE);
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
+        progressBar.setVisibility(View.GONE);
+    }
 
+    @Override
+    public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
+
+        String currentDate = dayOfMonth + "-" + month + "-" + year;
+        dob.setText(currentDate);
+    }
+
+    public void openDatePicker() {
+        DialogFragment datePicker = new DatePickerFragment();
+        datePicker.show(getSupportFragmentManager(), "date picker");
     }
 
     public void editProfile(View view) {

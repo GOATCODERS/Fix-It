@@ -14,19 +14,36 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FixIt">
+
+        <activity
+            android:name=".UploadProfilePictureActivity"
+            android:label="Update Profile Picture"
+            android:parentActivityName=".MainActivity">
+            <meta-data android:name="com.support.PARENT_ACTIVITY"
+                android:value="com.example.fixit.MainActivity"/>
+        </activity>
+
         <activity
             android:name=".CreateConcernActivity"
-            android:exported="false" />
+            android:label="Create New Concern"
+            android:parentActivityName=".MainActivity">
+            <meta-data android:name="com.support.PARENT_ACTIVITY"
+                android:value="com.example.fixit.MainActivity"/>
+        </activity>
+
         <activity
             android:name=".PreviewActivity"
-            android:exported="false"/>
+            android:label="My Profile"
+            android:parentActivityName=".MainActivity">
+            <meta-data android:name="com.support.PARENT_ACTIVITY"
+                android:value="com.example.fixit.MainActivity"/>
+        </activity>
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity
             android:name=".SignInActivity"
-            android:exported="false"
-            />
+            android:exported="false" />
         <activity
             android:name=".SignUpActivity"
             android:exported="true">

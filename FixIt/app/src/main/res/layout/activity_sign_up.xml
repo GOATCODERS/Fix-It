@@ -72,21 +72,6 @@
                         android:textColor="@color/dark_green"
                         android:autofillHints="" />
 
-
-                    <EditText
-                        android:id="@+id/signup_username"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:layout_marginTop="20dp"
-                        android:background="@drawable/bottom_line"
-                        android:drawableStart="@drawable/ic_username"
-                        android:drawablePadding="8dp"
-                        android:hint="@string/username"
-                        android:padding="8dp"
-                        android:textColor="@color/dark_green"
-                        android:importantForAutofill="no"
-                        android:inputType="text" />
-
                     <EditText
                         android:id="@+id/signup_password"
                         android:layout_width="match_parent"

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthEmailException;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,8 +28,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Objects;
+
 public class SignInActivity extends AppCompatActivity {
     private EditText email, password;
+    private TextView errorMessage;
     ProgressBar progressBar;
 
     FirebaseDatabase database;
@@ -45,8 +51,7 @@ public class SignInActivity extends AppCompatActivity {
         registerReceiver(checkConnection, filter);
         super.onStart();
 
-        if(user != null)
-        {
+        if (user != null) {
             openMainActivity();
         }
     }
@@ -64,25 +69,20 @@ public class SignInActivity extends AppCompatActivity {
 
         email = (EditText) findViewById(R.id.sign_in_email);
         password = (EditText) findViewById(R.id.sign_in_password);
+        errorMessage = (TextView)findViewById(R.id.sign_in_failed);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
+        errorMessage.setVisibility(View.GONE);
 
     }
 
-    public void signIn(View view) {
-        progressBar.setVisibility(ProgressBar.VISIBLE);
-        try {
-
-            if (!validateUser() | !validatePassword()) {
-
-            } else {
-                checkUser();
-            }
-
-        } finally {
-            progressBar.setVisibility(ProgressBar.INVISIBLE);
+    public void signIn(View view)
+    {
+        if (!validateUser() | !validatePassword()) {
+        } else {
+            checkUser();
         }
     }
 
@@ -96,6 +96,7 @@ public class SignInActivity extends AppCompatActivity {
     public void openSignUp(View view) {
         Intent intent = new Intent(this, SignUpActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private boolean validateUser() {
@@ -127,7 +128,7 @@ public class SignInActivity extends AppCompatActivity {
         String strEmail = email.getText().toString();
         String strPassword = password.getText().toString();
 
-        auth.signInWithEmailAndPassword(strEmail, strPassword).addOnCompleteListener(this,new OnCompleteListener<AuthResult>() {
+        auth.signInWithEmailAndPassword(strEmail, strPassword).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressBar.setVisibility(ProgressBar.INVISIBLE);
@@ -135,7 +136,22 @@ public class SignInActivity extends AppCompatActivity {
                     Toast.makeText(SignInActivity.this, "Logged in successfully", Toast.LENGTH_LONG).show();
                     openMainActivity();
                 } else {
-                    Toast.makeText(SignInActivity.this, "Failed to login", Toast.LENGTH_LONG).show();
+                    try {
+                        throw Objects.requireNonNull(task.getException());
+                    } catch(FirebaseAuthEmailException e){
+                        errorMessage.setVisibility(View.VISIBLE);
+                        errorMessage.setText(e.getMessage());
+                        Toast.makeText(SignInActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    }catch(FirebaseAuthInvalidCredentialsException e){
+                        errorMessage.setVisibility(View.VISIBLE);
+                        errorMessage.setText(e.getMessage());
+                        Toast.makeText(SignInActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    }catch (Exception e) {
+
+                        errorMessage.setVisibility(View.VISIBLE);
+                        errorMessage.setText(e.getMessage());
+                        Toast.makeText(SignInActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });

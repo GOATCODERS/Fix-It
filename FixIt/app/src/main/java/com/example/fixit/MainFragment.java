@@ -64,11 +64,8 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), PreviewActivity.class);
-//                String strUsername = mUsername;
-//
-//                intent.putExtra("username", strUsername);
-
                 startActivity(intent);
+                getActivity().finish();
 
 
             }

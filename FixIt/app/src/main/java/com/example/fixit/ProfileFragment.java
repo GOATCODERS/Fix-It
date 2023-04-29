@@ -1,44 +1,63 @@
- package com.example.fixit;
+package com.example.fixit;
 
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
 
 
 public class ProfileFragment extends Fragment {
     private static final String ARG_PARAM1 = "username";
     private static final String ARG_PARAM2 = "param2";
 
-      // TODO: Rename and change types of parameters
+    // TODO: Rename and change types of parameters
 //    private String mUsername;
 //    private String mParam2;
 
     private TextView name;
     private TextView email;
-    private TextView username;
+    private TextView age;
     private TextView password;
     private TextView address;
     private TextView contact;
-    String mEmail;
+    private ProgressBar progressBar;
+    private ImageButton profileImage;
+    private Bitmap bitmap;
 
     FirebaseDatabase database;
     DatabaseReference reference;
     FirebaseAuth auth;
+    StorageReference storage;
     private FirebaseUser user;
 
 //     ConnectionThread checkConnection = new ConnectionThread();
@@ -47,53 +66,38 @@ public class ProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-     public TextView getName() {
-         return name;
-     }
+    public TextView getName() {
+        return name;
+    }
 
-     public void setName(String name) {
-         this.name.setText(name);
-     }
+    public void setName(String name) {
+        this.name.setText(name);
+    }
 
-     public TextView getEmail() {
-         return email;
-     }
+    public TextView getEmail() {
+        return email;
+    }
 
-     public void setEmail(TextView email) {
-         this.email = email;
-     }
+    public void setEmail(String email) {
+        this.email.setText(email);
+    }
 
-     public TextView getUsername() {
-         return username;
-     }
 
-     public void setUsername(TextView username) {
-         this.username = username;
-     }
+    public TextView getAddress() {
+        return address;
+    }
 
-     public TextView getPassword() {
-         return password;
-     }
+    public void setAddress(String address) {
+        this.address.setText(address);
+    }
 
-     public void setPassword(TextView password) {
-         this.password = password;
-     }
+    public TextView getContact() {
+        return contact;
+    }
 
-     public TextView getAddress() {
-         return address;
-     }
-
-     public void setAddress(TextView address) {
-         this.address = address;
-     }
-
-     public TextView getContact() {
-         return contact;
-     }
-
-     public void setContact(TextView contact) {
-         this.contact = contact;
-     }
+    public void setContact(String contact) {
+        this.contact.setText(contact);
+    }
 
 
     // TODO: Rename and change types and number of parameters
@@ -122,79 +126,125 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View fragmentProfile = inflater.inflate(R.layout.fragment_profile, container, false);
-
+        requireActivity().setTitle("My Profile");
         name = fragmentProfile.findViewById(R.id.profile_name);
         email = (TextView) fragmentProfile.findViewById(R.id.profile_email);
-        username = (TextView) fragmentProfile.findViewById(R.id.profile_username);
         password = (TextView) fragmentProfile.findViewById(R.id.profile_password_redirect);
         address = (TextView) fragmentProfile.findViewById(R.id.profile_address_redirect);
         contact = (TextView) fragmentProfile.findViewById(R.id.profile_contact);
+        age = (TextView) fragmentProfile.findViewById(R.id.profile_age);
+        progressBar = fragmentProfile.findViewById(R.id.progressBar);
+        profileImage = fragmentProfile.findViewById(R.id.profile_image);
+        progressBar.setVisibility(View.VISIBLE);
 
-        auth = FirebaseAuth.getInstance();
-        user = auth.getCurrentUser();
-        mEmail = user.getEmail();
+        password.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                
+            }
+        });
 
+        profileImage.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(getContext(), UploadProfilePictureActivity.class);
+                startActivity(intent);
+            }
+        });
+        fragmentProfile.findViewById(R.id.btnEditProfile).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view)
+            {
+                Intent intent = new Intent(getContext(), ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
         init();
-
 
         return fragmentProfile;
     }
 
-     public void init()
-     {
+    public void init() {
+        database = FirebaseDatabase.getInstance();
+        reference = database.getReference("Users");
 
-         System.out.println("current user mEmail = "+ mEmail);
-         database = FirebaseDatabase.getInstance();
-         reference = database.getReference("Users");
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
 
-         Query checkDatabase = reference.orderByChild("email").equalTo(mEmail);
+        String uid = user.getUid();
 
-         checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-             @Override
-             public void onDataChange(@NonNull DataSnapshot snapshot)
-             {
-                 if(snapshot.exists())
-                 {
-                     String mUsername = snapshot.child("username").getValue(String.class);
+        System.out.println("current user mUsername = " + uid);
 
-                     System.out.println("current user mUsername = "+ mUsername);
+        DatabaseReference checkDatabase = reference.child(uid);
 
-                     String strName, strEmail, strPassword, strContact, strAddress;
-                     strName = snapshot.child(mUsername).child("name").getValue(String.class);
-                     strEmail = snapshot.child(mUsername).child("email").getValue(String.class);
-                     strContact = snapshot.child(mUsername).child("contact").getValue(String.class);
-                     strAddress = snapshot.child(mUsername).child("address").getValue(String.class);
+        checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String strName, strEmail, strPassword, strContact, strAge, strProfilePath;
+                User userData = snapshot.getValue(User.class);
 
-                     System.out.println("profile fragment is strName "+strName);
-                     setName(strName);
-                     email.setText(strEmail);
-                     System.out.println("profile fragment is email "+email.getText().toString());
-                     username.setText("@" + mUsername);
+                if (userData != null) {
+                    strContact = userData.getContact();
+                    strName = userData.getName();
+                    strEmail = userData.getEmail();
+                    strAge = userData.getAge();
+                    strProfilePath = userData.getProfilePic();
 
-                     if (strContact != null) {
-                         contact.setText(strContact);
-                     }
-                     if (strAddress != null) {
-                         address.setText(strAddress);
-                     }
-                 }else {
-                     System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++" +
-                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
-                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
-                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++                         onDataChange failed" +
-                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
-                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++" +
-                             "\n +++++++++++++++++++++++++++++++++++++++++++++++++++");
-                 }
+                    setName(strName);
+                    setEmail(strEmail);
 
 
-             }
+                    if (strContact != null) {
+                        setContact(strContact);
+                    }
+                    if (strAge != null) {
+                        age.setText(strAge);
+                    }
+                    if(strProfilePath!=null){
+                        storage = FirebaseStorage.getInstance().getReference("User_dp/"+strProfilePath);
 
-             @Override
-             public void onCancelled(@NonNull DatabaseError error) {
+                        try
+                        {
+                            File localFile = File.createTempFile("tempFile", ".png");
+                            storage.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                    bitmap = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+                                    Bitmap newBitmap = Bitmap.createScaledBitmap(bitmap, 150, 150, true);
 
-             }
-         });
+                                    profileImage.setImageBitmap(newBitmap);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(getContext(), "Failed to load file image", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    //profileImage=
 
-     }
+
+
+
+                } else {
+                    Toast.makeText(getContext(), "User data not available at the moment", Toast.LENGTH_LONG).show();
+
+                }
+                progressBar.setVisibility(View.GONE);
+            }
+
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
+
 }

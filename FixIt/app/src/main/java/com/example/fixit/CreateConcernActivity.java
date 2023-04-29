@@ -2,6 +2,7 @@ package com.example.fixit;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.DatePickerDialog;
@@ -67,6 +68,11 @@ public class CreateConcernActivity extends AppCompatActivity implements DatePick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_concern);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Create New Concern");
+        setSupportActionBar(toolbar);
+
         spLocation = (Spinner) findViewById(R.id.spinner_location);
         fixDate = (EditText) findViewById(R.id.fix_date);
         imageButton = (ImageButton) findViewById(R.id.fix_date_picker);
@@ -75,30 +81,19 @@ public class CreateConcernActivity extends AppCompatActivity implements DatePick
 
         storage = FirebaseStorage.getInstance().getReference();
 
-        Bundle extra = getIntent().getExtras();
-
-
-        if(!extra.isEmpty())
-            mUsername = extra.getString("username");
         bitmap = (Bitmap) getIntent().getParcelableExtra("bitmap");
 
-
-        try {
-            storeImage();
-            imageView.setImageBitmap(bitmap);
-        } catch (IOException e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+        imageView.setImageBitmap(bitmap);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.arr_location, android.R.layout.simple_spinner_item);
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spLocation.setAdapter(adapter);
 
 
     }
+..
 
     @Override
     public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
@@ -134,29 +129,24 @@ public class CreateConcernActivity extends AppCompatActivity implements DatePick
     public void onClickCancel(View view) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 
     public void onClickSubmit(View view) {
         if (validateAccount()) {
-            Toast.makeText(this, "Submitted Successfully", Toast.LENGTH_LONG).show();
+            try {
+                storeImage();
+                Toast.makeText(this, "Submitted Successfully", Toast.LENGTH_LONG).show();
+
+            } catch (IOException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 
     private void storeImage() throws IOException {
         try {
-//        String path = getApplicationContext().getFilesDir().getPath();
-//        File imageFile = new File(path, "FixIt_Capture");
-//
-//        if(!imageFile.exists())
-//        {
-//            imageFile.mkdirs();
-//        }
-//
-//        File imageFile2 = new File(imageFile, fileName + ".png");
-//        FileOutputStream fileStream = new FileOutputStream(imageFile2);
-            //
-//        fileStream.flush();
-//        fileStream.close();
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes);
             byte bb[] = bytes.toByteArray();

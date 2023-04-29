@@ -73,6 +73,18 @@
                         android:textColor="@color/dark_green"
                         android:importantForAutofill="no" />
 
+                    <TextView
+                        android:id="@+id/sign_in_failed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:text=""
+                        android:textColor="#FF0000"
+                        android:textSize="12sp"
+                        android:visibility="gone"/>
+
                     <ProgressBar
                         android:id="@+id/progress_bar"
                         android:visibility="invisible"

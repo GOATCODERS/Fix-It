@@ -28,11 +28,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Objects;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 
-public class SignUpActivity extends AppCompatActivity {
-    private EditText name, email, username, password, confirmPassword;
+public class SignUpActivity extends AppCompatActivity
+{
+    private EditText name, email, password, confirmPassword;
     TextView upper, lower, digit, charCounter, validatePassword;
     ProgressBar progressBar;
 
@@ -45,6 +47,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         database = FirebaseDatabase.getInstance();
@@ -52,7 +55,6 @@ public class SignUpActivity extends AppCompatActivity {
 
         name = (EditText) findViewById(R.id.signup_name);
         email = (EditText) findViewById(R.id.signup_email);
-        username = (EditText) findViewById(R.id.signup_username);
         password = (EditText) findViewById(R.id.signup_password);
         confirmPassword = (EditText) findViewById(R.id.signup_confirm_password);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
@@ -104,7 +106,6 @@ public class SignUpActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(checkConnection, filter);
         super.onStart();
-
         if(user != null)
         {
             openMainActivity();
@@ -120,7 +121,7 @@ public class SignUpActivity extends AppCompatActivity {
     public void createUser(View view) {
         progressBar.setVisibility(ProgressBar.VISIBLE);
 
-            if (!validateUser() | !validatePassword() | !validateEmail() | !validateName() | !validateConfirmPassword())
+            if (!validatePassword() | !validateEmail() | !validateName() | !validateConfirmPassword())
             {
 
             } else {
@@ -135,10 +136,14 @@ public class SignUpActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             progressBar.setVisibility(ProgressBar.INVISIBLE);
                             if (task.isSuccessful()) {
-                                Toast.makeText(SignUpActivity.this, "Account created", Toast.LENGTH_LONG).show();
                                 addToDatabase(view);
                             } else {
-                                Toast.makeText(SignUpActivity.this, "Failed to create an Account", Toast.LENGTH_LONG).show();
+                                try {
+                                    throw Objects.requireNonNull(task.getException());
+                                } catch (Exception e) {
+                                    Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                                }
+
                             }
                         }
                     });
@@ -146,7 +151,7 @@ public class SignUpActivity extends AppCompatActivity {
                 } else {
                     progressBar.setVisibility(ProgressBar.INVISIBLE);
                     Toast.makeText(this, "Failed to create an Account", Toast.LENGTH_LONG).show();
-                    username.requestFocus();
+                    email.requestFocus();
                 }
             }
     }
@@ -227,25 +232,6 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
-    private boolean validateUser() {
-        String strUsername = username.getText().toString();
-        Pattern lower = Pattern.compile("^[a-z0-9/s]*$");
-
-        if (strUsername.isEmpty()) {
-            username.setError(getString(R.string.mame_cannot_be_empty));
-            username.requestFocus();
-            return false;
-        } else if (!lower.matcher(strUsername).find()) {
-            username.setError("Username must be in lowercase," +
-                    " cannot contain space or any special char(@*!)");
-            username.requestFocus();
-            return false;
-        } else {
-            username.setError(null);
-            return true;
-        }
-    }
-
     private boolean validateConfirmPassword() {
         String strPassword = confirmPassword.getText().toString();
 
@@ -263,7 +249,6 @@ public class SignUpActivity extends AppCompatActivity {
     private boolean validateName() {
         String strUsername = name.getText().toString();
         Pattern pattern = Pattern.compile("^[a-zA-Z ]*$");
-//        Pattern lower = Pattern.compile("[a-z]");
 
         MatchResult result =  pattern.matcher(strUsername);
 
@@ -296,23 +281,21 @@ public class SignUpActivity extends AppCompatActivity {
 
     private boolean checkUser() {
         final boolean[] available = {false};
-        String strUsername = username.getText().toString();
+        String strEmail = email.getText().toString();
 
         reference = database.getReference("Users");
-        Query checkDatabase = reference.orderByChild("username").equalTo(strUsername);
+        Query checkDatabase = reference.orderByChild("email").equalTo(strEmail);
 
         checkDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    username.setError("Username already registered");
-                    username.requestFocus();
+                    email.setError("Username already registered");
+                    email.requestFocus();
                     available[0] = true;
-                    System.err.println("Passed here");
                 } else {
-                    username.setError(null);
+                    email.setError(null);
                     available[0] = false;
-                    System.err.println("Passed here else");
                 }
 
             }
@@ -332,9 +315,25 @@ public class SignUpActivity extends AppCompatActivity {
         String password = this.password.getText().toString();
 
         User user = new User(name, email, password);
+        this.user = this.auth.getCurrentUser();
 
         reference = database.getReference("Users");
-        reference.child(email).setValue(user);
+        reference.child(this.user.getUid()).setValue(user)
+                .addOnCompleteListener(this, new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if(task.isSuccessful())
+                {
+                    getUser().sendEmailVerification();
+                    Toast.makeText(SignUpActivity.this, "Account created, please verify your Email", Toast.LENGTH_LONG).show();
+                }else {
+                    Toast.makeText(SignUpActivity.this, "Account could not created", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
 
         openSignIn(view);
     }
@@ -347,44 +346,9 @@ public class SignUpActivity extends AppCompatActivity {
         this.name = name;
     }
 
-    public EditText getEmail() {
-        return email;
-    }
-
-    public void setEmail(EditText email) {
-        this.email = email;
-    }
-
-    public EditText getUsername() {
-        return username;
-    }
-
-    public void setUsername(EditText username) {
-        this.username = username;
-    }
-
-    public EditText getPassword() {
-        return password;
-    }
-
-    public void setPassword(EditText password) {
-        this.password = password;
-    }
-
-    public EditText getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(EditText confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
-
     public FirebaseUser getUser() {
         return user;
     }
 
-    public void setUser(FirebaseUser user) {
-        this.user = user;
-    }
 }
 

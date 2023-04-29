@@ -59,6 +59,7 @@ public class TasksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        requireActivity().setTitle("Active Tasks");
         return inflater.inflate(R.layout.fragment_tasks, container, false);
     }
 }

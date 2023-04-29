@@ -3,6 +3,7 @@ package com.example.fixit;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 
@@ -37,7 +38,6 @@ public class PreviewActivity extends AppCompatActivity
     ConnectionThread checkConnection = new ConnectionThread();
     Bitmap bitmap;
     private ImageView imageView;
-    private TextView results;
     private Button retry, create;
 
 
@@ -87,8 +87,11 @@ public class PreviewActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Image Preview");
+        setSupportActionBar(toolbar);
+
         imageView = (ImageView) findViewById(R.id.imageView);
-        results = (TextView) findViewById(R.id.tvResults);
         retry = (Button) findViewById(R.id.retry);
         create = (Button) findViewById(R.id.create_a_concern);
 
@@ -107,29 +110,6 @@ public class PreviewActivity extends AppCompatActivity
                 openCamera();
             }
         });
-
-//         optionsStream =
-//                new ObjectDetectorOptions.Builder()
-//                        .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
-//                        .enableClassification()  // Optional
-//                        .build();
-//
-//        // Multiple object detection in static images
-//         optionsSingle =
-//                new ObjectDetectorOptions.Builder()
-//                        .setDetectorMode(ObjectDetectorOptions.SINGLE_IMAGE_MODE)
-//                        .enableMultipleObjects()
-//                        .enableClassification()  // Optional
-//                        .build();
-//
-//        singleDetector = ObjectDetection.getClient(optionsSingle);
-//        streamDetector = ObjectDetection.getClient(optionsStream);
-//
-//        try {
-//            image = InputImage.fromMediaImage(null, getRotationCompensation("jk", this, isFinishing()));
-//        } catch (CameraAccessException e) {
-//            e.printStackTrace();
-//        }
 
     }
 
@@ -160,28 +140,7 @@ public class PreviewActivity extends AppCompatActivity
         Intent intent = new Intent(this, CreateConcernActivity.class);
         intent.putExtra("bitmap", bitmap);
         startActivity(intent);
+        finish();
     }
 
-    //    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-//    private int getRotationCompensation(String cameraId, Activity activity, boolean isFrontFacing)
-//            throws CameraAccessException {
-//        // Get the device's current rotation relative to its "native" orientation.
-//        // Then, from the ORIENTATIONS table, look up the angle the image must be
-//        // rotated to compensate for the device's rotation.
-//        int deviceRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-//        int rotationCompensation = ORIENTATIONS.get(deviceRotation);
-//
-//        // Get the device's sensor orientation.
-//        CameraManager cameraManager = (CameraManager) activity.getSystemService(CAMERA_SERVICE);
-//        int sensorOrientation = cameraManager
-//                .getCameraCharacteristics(cameraId)
-//                .get(CameraCharacteristics.SENSOR_ORIENTATION);
-//
-//        if (isFrontFacing) {
-//            rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
-//        } else { // back-facing
-//            rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
-//        }
-//        return rotationCompensation;
-//    }
 }

@@ -15,6 +15,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 
@@ -28,7 +29,6 @@ public class MainActivity extends AppCompatActivity
     ConnectionThread checkConnection = new ConnectionThread();
     private DrawerLayout drawer;
     private ActionBarDrawerToggle drawerToggle;
-    private String mUsername;
     FirebaseAuth auth;
     FirebaseUser user;
 
@@ -63,15 +63,9 @@ public class MainActivity extends AppCompatActivity
 
         getPermission();
 
-        Bundle extra = getIntent().getExtras();
-
-        if(!extra.isEmpty())
-            mUsername = extra.getString("username");
-
         drawer = (DrawerLayout) findViewById(R.id.drawer);
         drawerToggle = new ActionBarDrawerToggle(this, drawer, R.string.open, R.string.close);
         drawerToggle.setDrawerIndicatorEnabled(true);
-
 
 
         drawer.addDrawerListener(drawerToggle);
@@ -81,8 +75,10 @@ public class MainActivity extends AppCompatActivity
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem item)
+            {
                 int id = item.getItemId();
+                drawer.closeDrawer(GravityCompat.START);
 
                 if(id == R.id.profile)
                 {
@@ -98,14 +94,10 @@ public class MainActivity extends AppCompatActivity
                     auth.signOut();
                     FirebaseAuth.getInstance().signOut();
                     openSignInActivity();
-
                 }
-
                 return true;
             }
         });
-
-
     }
 
     private void openSignInActivity() {
@@ -116,11 +108,8 @@ public class MainActivity extends AppCompatActivity
 
     private void openProfileFragment()
     {
-        String strUsername = mUsername;
-        Bundle bundle = new Bundle();
-        bundle.putString("username", strUsername);
         manager.beginTransaction()
-                .replace(R.id.fragmentContainerView, ProfileFragment.class, bundle)
+                .replace(R.id.fragmentContainerView, ProfileFragment.class, null)
                 .setReorderingAllowed(true)
                 .addToBackStack("name")
                 .commit();
@@ -129,26 +118,16 @@ public class MainActivity extends AppCompatActivity
 
     private void openNotificationsFragment()
     {
-        String strUsername = mUsername;
-        Bundle bundle = new Bundle();
-        bundle.putString("username", strUsername);
         manager.beginTransaction()
-                .replace(R.id.fragmentContainerView, NotificationsFragment.class, bundle)
+                .replace(R.id.fragmentContainerView, NotificationsFragment.class, null)
                 .setReorderingAllowed(true)
                 .addToBackStack("name")
                 .commit();
 
     }
 
-    private void openMainFragment() {
-//        ProfileActivity pa = new ProfileActivity();
-//        Intent intent = new Intent(this, ProfileActivity.class);
-//        String strUsername = mUsername;
-//
-//        intent.putExtra("username", strUsername);
-//
-//        startActivity(intent);
-
+    private void openMainFragment()
+    {
         manager.beginTransaction()
                 .replace(R.id.fragmentContainerView, MainFragment.class, null)
                 .setReorderingAllowed(true)
